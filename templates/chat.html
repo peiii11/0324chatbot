@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaiSoc Chat</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
+    />
+    <style>
+      /* Base styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f5f5f5;
+      }
+
+      .app-container {
+        display: flex;
+        height: 100vh;
+        background-color: #f5f5f5;
+      }
+
+      /* Sidebar styles */
+      .sidebar {
+        width: 256px;
+        border-right: 1px solid #e0e0e0;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        background-color: #fff;
+      }
+
+      .sidebar-header {
+        position: relative;
+        padding: 18px 16px;
+      }
+
+      .logo {
+        width: 40px;
+        height: 39px;
+        border-radius: 191px;
+      }
+
+      .app-title {
+        color: #000;
+        font-size: 20px;
+        font-weight: 700;
+        position: absolute;
+        left: 64px;
+        top: 23px;
+      }
+
+      .nav-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin: 0 8px 0;
+      }
+
+      .nav-item {
+        display: flex;
+        height: 40px;
+        padding: 0 16px;
+        align-items: center;
+        gap: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .nav-item:hover {
+        background-color: #f5f5f5;
+      }
+
+      .nav-label {
+        color: #000;
+        font-size: 16px;
+        font-weight: 400;
+      }
+
+      /*三個點按鈕*/
+      .sidebar-footer {
+        position: absolute;
+        bottom: 33px;
+        right: 28px;
+      }
+
+      .menu-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      .dots-icon {
+        width: 25px;
+        height: 25px;
+      }
+
+      .sidebar-menu {
+        padding: 20px;
+        border-radius: 23px;
+        width: 174px;
+        background-color: #f0ece5;
+      }
+
+      .menu-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+      }
+
+      .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+      }
+
+      .menu-icon {
+        font-size: 24px;
+        color: #000000;
+      }
+
+      .menu-text {
+        font-size: 16px;
+        color: #000000;
+      }
+
+      /* Media Queries */
+      @media (max-width: 991px) {
+        .sidebar-menu {
+          width: 150px;
+          padding: 15px;
+        }
+
+        .menu-icon {
+          font-size: 20px;
+        }
+
+        .menu-text {
+          font-size: 14px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .sidebar-menu {
+          width: 100%;
+          padding: 10px;
+        }
+
+        .menu-item {
+          padding: 10px;
+        }
+
+        .menu-icon {
+          font-size: 18px;
+        }
+
+        .menu-text {
+          font-size: 14px;
+        }
+      }
+
+      /* Main content styles */
+      .main-content {
+        flex: 1;
+        padding: 24px;
+        position: relative;
+        background-color: #fff;
+      }
+
+      .action-button-container {
+        position: absolute;
+        right: 40px;
+        top: 30px;
+      }
+
+      .new-button {
+        display: flex;
+        align-items: center;
+        border-radius: 8px;
+        padding: 0 16px;
+        height: 40px;
+        gap: 8px;
+        cursor: pointer;
+        background-color: #828282;
+        border: none;
+      }
+
+      .button-text {
+        color: #fff;
+        font-size: 20px;
+      }
+
+      .chat-welcome {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 200px;
+      }
+
+      .chat-logo {
+        width: 120px;
+        height: 118px;
+        border-radius: 191px;
+        margin-bottom: 28px;
+      }
+
+      .welcome-text {
+        color: #454545;
+        font-size: 20px;
+        text-align: center;
+      }
+
+      .message-input-container {
+        position: absolute;
+        bottom: 24px;
+        left: 24px;
+        right: 24px;
+
+        /* 使用 flex 讓 input 與 icons 並排 */
+        display: flex;
+        align-items: center;
+
+        /* 外觀樣式 */
+        padding: 8px 16px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background-color: #fff;
+      }
+
+      /* 讓 input 與 icons 同一列 */
+      .message-input-container input[type="text"] {
+        flex: 1;              /* 佔滿剩餘空間 */
+        border: none;         /* 移除預設邊框 */
+        outline: none;        /* 去除點擊後的 outline */
+        font-size: 16px;
+      }
+
+      .input-placeholder {
+        color: #828282;
+        font-size: 16px;
+        flex: 1;
+      }
+
+      .input-actions {
+        display: flex;
+        gap: 16px;
+      }
+
+      .input-action-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      .input-icon {
+        width: 24px;
+        height: 24px;
+      }
+
+      /* Media queries */
+      @media (max-width: 991px) {
+        .sidebar {
+          width: 200px;
+        }
+
+        .main-content {
+          padding: 16px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .sidebar {
+          display: none;
+        }
+
+        .main-content {
+          padding: 12px;
+        }
+
+        .action-button-container {
+          right: 20px;
+          top: 20px;
+        }
+
+        .chat-logo {
+          width: 100px;
+          height: 98px;
+        }
+
+        .welcome-text {
+          font-size: 18px;
+        }
+      }
+
+      /* Chat Message Component Styles */
+      .chat-container {
+        display: flex;
+        flex-direction: column;
+        margin-top: 10px;
+        gap: 10px;
+      }
+
+      /* 針對「第一個 .chat-container」給較大距離 */
+      .chat-container:first-child {
+        margin-top: 25px;
+      }
+
+      /* 使用者訊息區塊（靠右對齊） */
+      .user-message-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        margin-top: 10px;  
+      }
+
+      .user-message {
+        max-width: 480px;
+        padding: 10px 10px;
+        border-radius: 16px 16px 4px 16px;  /* 上面兩角圓，下右角較小 */
+        background-color: #000;
+        color: #fff;
+        font-family: "Inter", sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 150%;
+        margin: 0;
+      }
+
+      /* AI 回覆區塊（靠左對齊） */
+      .assistant-message-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .assistant-message {
+        max-width: 480px;
+        padding: 12px 16px;
+        border-radius: 24px 16px 16px 4px;  /* 左上角與右下角較圓 */
+        background-color: #e0e0e0;
+        color: #000;
+        font-family: "Inter", sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 150%;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img
+            src="static/logo.png"
+            alt="TaiSoc Logo"
+            class="logo"
+            onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAA30lEQVR4nO3bQQqDMBRF0Gy6/y3bHaRgKIrGl3sPMn5HMPnjMQAAAAAAAAAAAAAAlHiN/uA8z3EcR9UpvnYfjJzzGMc9/9x938d5nmOMd84OzesBohAQhYAoBEQhIAoBUQiIQkAUAqIQEIWAKAREISAKAVEIiEJAFAKiEBCFgCgERCEgCgFRCIhCQBQCohAQhYAoBEQhIAoBUQiIQkAUAqIQEMW9n7m/oVnjnHNsRu7wQRQCohAQhYAoBEQhIAoBUQiIQkAUAqIQEIWAKAREISAKAVEIiEJAFAKiEBAAAAAAAAAA/+UNvf8Gw6pYIJUAAAAASUVORK5CYII='"
+          />
+          <h1 class="app-title">TaiSoc</h1>
+        </div>
+
+        <nav class="nav-menu">
+          <a href="#" class="nav-item">
+            <div class="icon-wrapper">
+              <svg
+                class="nav-icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z"
+                  stroke="black"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+                <path
+                  d="M9 22V12H15V22"
+                  stroke="black"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </div>
+            <span class="nav-label">Home</span>
+          </a>
+
+          <a href="#" class="nav-item">
+            <div class="icon-wrapper">
+              <svg
+                class="nav-icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 7.49997L12 11.9999M12 11.9999V16.4999M12 11.9999H16.5M12 11.9999H7.5M21 6.37498L21 17.625C21 19.489 19.489 21 17.625 21H6.375C4.51104 21 3 19.489 3 17.625V6.37498C3 4.51103 4.51104 3 6.375 3H17.625C19.489 3 21 4.51103 21 6.37498Z"
+                  stroke="black"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                ></path>
+              </svg>
+            </div>
+            <span class="nav-label">Explore</span>
+          </a>
+
+          <a href="#" class="nav-item">
+            <div class="icon-wrapper">
+              <svg
+                class="nav-icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
+                  stroke="black"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+                <path
+                  d="M20.9999 21L16.6499 16.65"
+                  stroke="black"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </div>
+            <span class="nav-label">History</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="menu-button" id="dotsButton">
+            <svg
+              class="dots-icon"
+              width="25"
+              height="25"
+              viewBox="0 0 25 25"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12.5 7.5C11.1193 7.5 10 6.38071 10 5C10 3.61929 11.1193 2.5 12.5 2.5C13.8807 2.5 15 3.61929 15 5C15 6.38071 13.8807 7.5 12.5 7.5Z"
+                stroke="#272727"
+                stroke-width="2"
+              ></path>
+              <path
+                d="M12.5 15C11.1193 15 10 13.8807 10 12.5C10 11.1193 11.1193 10 12.5 10C13.8807 10 15 11.1193 15 12.5C15 13.8807 13.8807 15 12.5 15Z"
+                stroke="#272727"
+                stroke-width="2"
+              ></path>
+              <path
+                d="M12.5 22.5C11.1193 22.5 10 21.3807 10 20C10 18.6193 11.1193 17.5 12.5 17.5C13.8807 17.5 15 18.6193 15 20C15 21.3807 13.8807 22.5 12.5 22.5Z"
+                stroke="#272727"
+                stroke-width="2"
+              ></path>
+            </svg>
+          </button>
+           <!-- 隱藏的選單容器（預設不顯示） -->
+          <div class="dots-menu-container" id="dotsMenu" style="display: none; position: absolute; bottom: 40px; right: 2px;">
+            <nav class="sidebar-menu">
+                <ul class="menu-list">
+                  <li class="menu-item">
+                    <i class="ti ti-message-circle menu-icon"></i>
+                    <span class="menu-text">Feedback</span>
+                  </li>
+                  <li class="menu-item">
+                    <i class="ti ti-settings menu-icon"></i>
+                    <span class="menu-text">Setting</span>
+                  </li>
+                  <li class="menu-item">
+                    <i class="ti ti-info-circle menu-icon"></i>
+                    <span class="menu-text">About us</span>
+                  </li>
+                </ul>
+            </nav>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="action-button-container">
+          <button class="new-button" id="newChatBtn">
+            <svg
+              class="plus-icon"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect x="0.5" y="0.5" width="23" height="23" fill="white"></rect>
+              <rect
+                x="0.5"
+                y="0.5"
+                width="23"
+                height="23"
+                stroke="black"
+              ></rect>
+              <path
+                d="M11.9998 4.8L11.9998 19.2M19.1998 12L4.7998 12"
+                stroke="black"
+                stroke-width="2"
+                stroke-linecap="round"
+              ></path>
+            </svg>
+            <span class="button-text">New</span>
+          </button>
+        </div>
+
+        <section class="chat-welcome">
+          <img
+            src="static/logo.png"
+            alt="Chat Logo"
+            class="chat-logo"
+            onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAA30lEQVR4nO3bQQqDMBRF0Gy6/y3bHaRgKIrGl3sPMn5HMPnjMQAAAAAAAAAAAAAAlHiN/uA8z3EcR9UpvnYfjJzzGMc9/9x938d5nmOMd84OzesBohAQhYAoBEQhIAoBUQiIQkAUAqIQEIWAKAREISAKAVEIiEJAFAKiEBCFgCgERCEgCgFRCIhCQBQCohAQhYAoBEQhIAoBUQiIQkAUAqIQEMW9n7m/oVnjnHNsRu7wQRQCohAQhYAoBEQhIAoBUQiIQkAUAqIQEIWAKAREISAKAVEIiEJAFAKiEBAAAAAAAAAA/+UNvf8Gw6pYIJUAAAAASUVORK5CYII='"
+          />
+          <p class="welcome-text">Any new knowledge about Taiwan?</p>
+          <p class="welcome-text">Ask me...</p>
+        </section>
+
+        <!-- 加入聊天紀錄容器 -->
+        <div id="chat-history" style="overflow-y: auto; max-height: 670px; padding: 16px;"></div>
+
+        <div class="message-input-container">
+          <input type="text" id="message" placeholder="Enter your message" />
+          <div class="input-actions">
+            <button class="input-action-button">
+              <svg
+                class="input-icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M20 10.9696L11.9628 18.5497C10.9782 19.4783 9.64274 20 8.25028 20C6.85782 20 5.52239 19.4783 4.53777 18.5497C3.55315 17.6211 3 16.3616 3 15.0483C3 13.7351 3.55315 12.4756 4.53777 11.547L12.575 3.96687C13.2314 3.34779 14.1217 3 15.05 3C15.9783 3 16.8686 3.34779 17.525 3.96687C18.1814 4.58595 18.5502 5.4256 18.5502 6.30111C18.5502 7.17662 18.1814 8.01628 17.525 8.63535L9.47904 16.2154C9.15083 16.525 8.70569 16.6989 8.24154 16.6989C7.77738 16.6989 7.33224 16.525 7.00403 16.2154C6.67583 15.9059 6.49144 15.4861 6.49144 15.0483C6.49144 14.6106 6.67583 14.1907 7.00403 13.8812L14.429 6.88674"
+                  stroke="black"
+                  stroke-opacity="0.42"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </button>
+            <button class="input-action-button">
+              <svg
+                class="input-icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 1C11.2044 1 10.4413 1.31607 9.87868 1.87868C9.31607 2.44129 9 3.20435 9 4V12C9 12.7956 9.31607 13.5587 9.87868 14.1213C10.4413 14.6839 11.2044 15 12 15C12.7956 15 13.5587 14.6839 14.1213 14.1213C14.6839 13.5587 15 12.7956 15 12V4C15 3.20435 14.6839 2.44129 14.1213 1.87868C13.5587 1.31607 12.7956 1 12 1Z"
+                  stroke="#828282"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+                <path
+                  d="M19 10V12C19 13.8565 18.2625 15.637 16.9497 16.9497C15.637 18.2625 13.8565 19 12 19C10.1435 19 8.36301 18.2625 7.05025 16.9497C5.7375 15.637 5 13.8565 5 12V10"
+                  stroke="#828282"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+                <path
+                  d="M12 19V23"
+                  stroke="#828282"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+                <path
+                  d="M8 23H16"
+                  stroke="#828282"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </button>
+            <button class="input-action-button">
+              <svg
+                class="input-icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                  stroke="#828282"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+                <path
+                  d="M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14"
+                  stroke="#828282"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+                <path
+                  d="M9 9H9.01"
+                  stroke="#828282"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+                <path
+                  d="M15 9H15.01"
+                  stroke="#828282"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </button>
+            <button class="input-action-button" id="send-btn">
+              <svg
+                class="input-icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
+                  stroke="#828282"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+                <path
+                  d="M8.5 10C9.32843 10 10 9.32843 10 8.5C10 7.67157 9.32843 7 8.5 7C7.67157 7 7 7.67157 7 8.5C7 9.32843 7.67157 10 8.5 10Z"
+                  stroke="#828282"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+                <path
+                  d="M21 15L16 10L5 21"
+                  stroke="#828282"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+    
+    <script>
+      // 頁面載入時初始化
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log("聊天頁面已載入，初始化...");
+        
+        // 獲取DOM元素
+        const messageInput = document.getElementById("message");
+        const chatHistory = document.getElementById("chat-history");
+        const welcomeSection = document.querySelector(".chat-welcome");
+        const sendButton = document.getElementById("send-btn");
+        const dotsButton = document.getElementById("dotsButton");
+        const dotsMenu = document.getElementById("dotsMenu");
+        const newChatBtn = document.getElementById("newChatBtn");
+        
+        /* ------------------------------
+           1. 聊天功能
+        ------------------------------ */
+        async function sendMessage() {
+            if (!messageInput || !chatHistory) return;
+            
+            const userMessage = messageInput.value.trim();
+            if (userMessage === "") return;
+            
+            // 第一次送出訊息時，隱藏歡迎區塊
+            if (welcomeSection) {
+                welcomeSection.style.display = "none";
+            }
+
+            // 顯示使用者訊息（右側黑框）
+            let userMessageEl = document.createElement("section");
+            userMessageEl.classList.add("chat-container");
+            userMessageEl.innerHTML = `
+                <div class="user-message-container">
+                    <p class="user-message">${userMessage}</p>
+                </div>
+            `;
+            chatHistory.appendChild(userMessageEl);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            // 清空輸入欄位
+            messageInput.value = "";
+
+            // 呼叫後端 /chat API
+            try {
+                let response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: userMessage })
+                });
+                let result = await response.json();
+
+                // 顯示 AI 回應
+                let botMessageEl = document.createElement("section");
+                botMessageEl.classList.add("chat-container");
+                botMessageEl.innerHTML = `
+                    <div class="assistant-message-container">
+                        <p class="assistant-message">${result.reply}</p>
+                    </div>
+                `;
+                chatHistory.appendChild(botMessageEl);
+            } catch (error) {
+                // 顯示錯誤訊息
+                let errorEl = document.createElement("section");
+                errorEl.classList.add("chat-container");
+                errorEl.innerHTML = `
+                    <div class="assistant-message-container">
+                        <p class="assistant-message">⚠️ 錯誤：${error}</p>
+                    </div>
+                `;
+                chatHistory.appendChild(errorEl);
+            }
+
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        // 綁定發送訊息事件
+        if (sendButton) {
+            sendButton.addEventListener("click", sendMessage);
+        }
+        
+        // 監聽 Enter 鍵
+        if (messageInput) {
+            messageInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();  // 防止預設行為
+                    sendMessage();
+                }
+            });
+        }
+        
+        /* ------------------------------
+           2. 三點選單功能
+        ------------------------------ */
+        if (dotsButton && dotsMenu) {
+            dotsButton.addEventListener("click", (event) => {
+                // 切換選單顯示或隱藏
+                if (dotsMenu.style.display === "none" || dotsMenu.style.display === "") {
+                    dotsMenu.style.display = "block";
+                } else {
+                    dotsMenu.style.display = "none";
+                }
+                // 阻止點擊事件冒泡，避免影響其他點擊處理
+                event.stopPropagation();
+            });
+
+            // 當使用者點擊頁面其他地方時，自動隱藏選單
+            document.addEventListener("click", (event) => {
+                if (!dotsButton.contains(event.target) && !dotsMenu.contains(event.target)) {
+                    dotsMenu.style.display = "none";
+                }
+            });
+        }
+        
+        /* ------------------------------
+           3. New按鈕功能
+        ------------------------------ */
+        if (newChatBtn) {
+            newChatBtn.addEventListener("click", () => {
+                // 清空聊天記錄
+                if (chatHistory) {
+                    chatHistory.innerHTML = "";
+                }
+                
+                // 顯示歡迎區塊
+                if (welcomeSection) {
+                    welcomeSection.style.display = "flex";
+                }
+            });
+        }
+        
+        // 側邊欄導航項目功能
+        const navItems = document.querySelectorAll(".nav-item");
+        navItems.forEach(item => {
+            item.addEventListener("click", (event) => {
+                event.preventDefault();
+                const linkText = item.querySelector(".nav-label").textContent;
+                
+                if (linkText === "Home") {
+                    window.location.href = "/";
+                } else if (linkText === "History") {
+                    // 暫時顯示提示訊息
+                    alert("查看歷史記錄功能即將推出");
+                } else if (linkText === "Explore") {
+                    // 暫時顯示提示訊息
+                    alert("探索功能即將推出");
+                }
+            });
+        });
+        
+        // 側邊選單項目功能
+        const menuItems = document.querySelectorAll(".menu-item");
+        menuItems.forEach(item => {
+            item.addEventListener("click", () => {
+                const menuText = item.querySelector(".menu-text").textContent;
+                
+                if (menuText === "Feedback") {
+                    alert("感謝您的使用！您可以發送電子郵件至 feedback@taisoc.com 提供意見反饋。");
+                } else if (menuText === "Setting") {
+                    alert("設定功能即將推出");
+                } else if (menuText === "About us") {
+                    alert("TaiSoc 是一個專注於臺灣社會文化交流的平台，致力於提供有關臺灣的知識和資訊。");
+                }
+                
+                // 點擊後關閉選單
+                if (dotsMenu) {
+                    dotsMenu.style.display = "none";
+                }
+            });
+        });
+      });
+    </script>
+  </body>
+</html>

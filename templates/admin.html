@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaiSoc - 管理介面</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: block;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .action-buttons {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .action-button {
+            padding: 10px 15px;
+            background-color: #4b7bec;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .action-button.danger {
+            background-color: #eb4d4b;
+        }
+        .action-button:hover {
+            opacity: 0.9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .status-message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .checkbox-column {
+            width: 40px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>TaiSoc 使用者管理介面</h1>
+        
+        <div class="action-buttons">
+            <button id="refresh-btn" class="action-button">重新整理</button>
+            <button id="delete-selected-btn" class="action-button danger">刪除選定</button>
+            <button id="clear-all-btn" class="action-button danger">清空全部</button>
+            <button id="init-db-btn" class="action-button">初始化資料庫</button>
+        </div>
+        
+        <div id="admin-status-message" class="status-message"></div>
+        
+        <table id="users-table">
+            <thead>
+                <tr>
+                    <th class="checkbox-column"><input type="checkbox" id="select-all-checkbox"></th>
+                    <th>ID</th>
+                    <th>電子郵件</th>
+                    <th>姓名</th>
+                    <th>生日</th>
+                    <th>電話</th>
+                    <th>註冊日期</th>
+                    <th>登入方式</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="users-list">
+                <!-- 使用者資料會透過JavaScript動態載入 -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const refreshBtn = document.getElementById('refresh-btn');
+            const deleteSelectedBtn = document.getElementById('delete-selected-btn');
+            const clearAllBtn = document.getElementById('clear-all-btn');
+            const initDbBtn = document.getElementById('init-db-btn');
+            const selectAllCheckbox = document.getElementById('select-all-checkbox');
+            const usersList = document.getElementById('users-list');
+            const statusMessage = document.getElementById('admin-status-message');
+            
+            // 載入使用者資料
+            function loadUsers() {
+                fetch('/api/users')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            displayUsers(data.users);
+                        } else {
+                            showStatus('載入使用者資料失敗: ' + data.message, true);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('載入使用者時出錯:', error);
+                        showStatus('載入使用者資料時發生錯誤，請稍後再試', true);
+                    });
+            }
+            
+            // 顯示使用者資料
+            function displayUsers(users) {
+                usersList.innerHTML = '';
+                
+                if (users.length === 0) {
+                    const emptyRow = document.createElement('tr');
+                    emptyRow.innerHTML = '<td colspan="9" style="text-align: center;">沒有找到使用者資料</td>';
+                    usersList.appendChild(emptyRow);
+                    return;
+                }
+                
+                users.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.dataset.userId = user.id;
+                    
+                    row.innerHTML = `
+                        <td class="checkbox-column"><input type="checkbox" class="user-checkbox" data-id="${user.id}"></td>
+                        <td>${user.id}</td>
+                        <td>${user.email}</td>
+                        <td>${user.name || '-'}</td>
+                        <td>${user.birthday || '-'}</td>
+                        <td>${user.phone || '-'}</td>
+                        <td>${formatDate(user.registration_date)}</td>
+                        <td>${user.login_method === 'google' ? 'Google' : '電子郵件'}</td>
+                        <td>
+                            <button class="delete-btn" data-id="${user.id}">刪除</button>
+                        </td>
+                    `;
+                    
+                    usersList.appendChild(row);
+                });
+                
+                // 為所有刪除按鈕添加點擊事件
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const userId = this.dataset.id;
+                        deleteUser(userId);
+                    });
+                });
+            }
+            
+            // 格式化日期
+            function formatDate(dateString) {
+                if (!dateString) return '-';
+                try {
+                    const date = new Date(dateString);
+                    return date.toLocaleString();
+                } catch (e) {
+                    return dateString;
+                }
+            }
+            
+            // 顯示狀態訊息
+            function showStatus(message, isError = false) {
+                statusMessage.textContent = message;
+                statusMessage.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
+                statusMessage.style.color = isError ? '#721c24' : '#155724';
+                statusMessage.style.display = 'block';
+                
+                // 5秒後自動隱藏
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            // 刪除單個使用者
+            function deleteUser(userId) {
+                if (!confirm(`確定要刪除 ID 為 ${userId} 的使用者嗎？`)) {
+                    return;
+                }
+                
+                fetch('/api/delete-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: userId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showStatus(data.message);
+                        loadUsers(); // 重新載入使用者列表
+                    } else {
+                        showStatus(data.message, true);
+                    }
+                })
+                .catch(error => {
+                    console.error('刪除使用者時出錯:', error);
+                    showStatus('刪除使用者時發生錯誤，請稍後再試', true);
+                });
+            }
+            
+            // 刪除選定的使用者
+            function deleteSelectedUsers() {
+                const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+                const selectedIds = [...selectedCheckboxes].map(checkbox => checkbox.dataset.id);
+                
+                if (selectedIds.length === 0) {
+                    showStatus('請先選擇要刪除的使用者', true);
+                    return;
+                }
+                
+                if (!confirm(`確定要刪除選定的 ${selectedIds.length} 個使用者嗎？`)) {
+                    return;
+                }
+                
+                fetch('/api/delete-users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ids: selectedIds })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showStatus(data.message);
+                        loadUsers(); // 重新載入使用者列表
+                    } else {
+                        showStatus(data.message, true);
+                    }
+                })
+                .catch(error => {
+                    console.error('批量刪除使用者時出錯:', error);
+                    showStatus('批量刪除使用者時發生錯誤，請稍後再試', true);
+                });
+            }
+            
+            // 清空所有使用者
+            function clearAllUsers() {
+                if (!confirm('警告：此操作將刪除所有使用者資料，且無法恢復！\n\n確定要繼續嗎？')) {
+                    return;
+                }
+                
+                fetch('/api/clear-users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showStatus(data.message);
+                        loadUsers(); // 重新載入使用者列表
+                    } else {
+                        showStatus(data.message, true);
+                    }
+                })
+                .catch(error => {
+                    console.error('清空使用者時出錯:', error);
+                    showStatus('清空使用者時發生錯誤，請稍後再試', true);
+                });
+            }
+            
+            // 初始化資料庫
+            function initializeDatabase() {
+                fetch('/api/init-db', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showStatus(data.message);
+                        loadUsers(); // 重新載入使用者列表
+                    } else {
+                        showStatus(data.message, true);
+                    }
+                })
+                .catch(error => {
+                    console.error('初始化資料庫時出錯:', error);
+                    showStatus('初始化資料庫時發生錯誤，請稍後再試', true);
+                });
+            }
+            
+            // 事件監聽器
+            refreshBtn.addEventListener('click', loadUsers);
+            
+            deleteSelectedBtn.addEventListener('click', deleteSelectedUsers);
+            
+            clearAllBtn.addEventListener('click', clearAllUsers);
+            
+            initDbBtn.addEventListener('click', initializeDatabase);
+            
+            // 全選 / 取消全選
+            selectAllCheckbox.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.user-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+            
+            // 初始載入使用者資料
+            loadUsers();
+        });
+    </script>
+</body>
+</html>

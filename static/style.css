@@ -1,0 +1,319 @@
+/* TaiSoc - 整合樣式文件 */
+
+/* ------------------------------
+   1. 通用樣式
+------------------------------ */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #ffffff;
+}
+
+/* ------------------------------
+   2. 登入註冊頁面樣式
+------------------------------ */
+.container {
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    padding: 20px;
+}
+
+.logo-container {
+    margin: 0 auto 30px;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: #f0efe4;
+    border-radius: 50%;
+    padding: 0;
+}
+
+h1 {
+    color: #6d624c;
+    font-size: 28px;
+    margin-bottom: 20px;
+    font-weight: normal;
+}
+
+h2 {
+    font-size: 22px;
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: normal;
+}
+
+p {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.form-container {
+    margin-top: 25px;
+    width: 100%;
+}
+
+input[type="email"], 
+input[type="text"], 
+input[type="date"], 
+input[type="tel"], 
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
+    background-color: #fff;
+}
+
+.btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #666660;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 15px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.btn:hover {
+    background-color: #55554f;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    color: #888;
+    font-size: 14px;
+}
+
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ddd;
+}
+
+.divider::before {
+    margin-right: 15px;
+}
+
+.divider::after {
+    margin-left: 15px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* 狀態訊息樣式 */
+.status-message {
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 4px;
+    display: none;
+}
+
+.status-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    display: block;
+}
+
+.status-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    display: block;
+}
+
+/* Google 按鈕樣式 */
+.g_id_signin {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.g_id_signin > div {
+    width: 100% !important;
+}
+
+.g_id_signin iframe {
+    width: 100% !important;
+}
+
+/* ------------------------------
+   3. Sign up 容器樣式
+------------------------------ */
+#signup-container {
+    background: white;
+    padding: 40px;
+    border-radius: 0;
+    box-shadow: none;
+    text-align: center;
+    width: 400px;
+    border: 1px solid #E0E0E0;
+}
+
+/* 按鈕 */
+button {
+    width: 100%;
+    background-color: #C9C2B7;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+button:hover {
+    background-color: #B5AEA3;
+}
+
+/* 條款 */
+.terms {
+    font-size: 12px;
+    color: #777;
+    margin-top: 16px;
+}
+
+.terms a {
+    color: #333;
+    text-decoration: none;
+    font-weight: normal;
+}
+
+/* Modal 遮罩 */
+.modal {
+    display: none; /* 預設隱藏 */
+    position: fixed;
+    z-index: 999; /* 顯示在最前面 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5); /* 半透明黑色背景 */
+}
+
+/* Modal 內容區塊 */
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    width: 300px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.modal-content input {
+    display: block;
+    width: 100%;
+    margin: 8px 0;
+    padding: 8px;
+}
+
+/* ------------------------------
+   4. 成功頁面樣式
+------------------------------ */
+#success-page {
+    position: fixed;  /* 或 absolute 也可，但 fixed 比較不會被捲動 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;    /* 佔滿視窗高度 */
+    background-color: #FFFFFF; 
+  
+    /* flex 置中，確保內容水平 & 垂直都在正中央 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center; /* 文字水平置中 */
+
+    /* 移除任何可能的padding和margin */
+    padding: 0;
+    margin: 0;
+}
+  
+/* Logo 大小、間距 */
+#success-page .logo {
+    width: 100px;
+    height: 100px;
+    margin-top: 0;
+    border-radius: 50%;
+    object-fit: cover; /* 若圖片比例不一，可自動裁切 */
+}
+  
+/* Success 標題 */
+#success-page h2 {
+    font-size: 24px;
+    color: #64573D;
+    margin-bottom: 20px;
+    font-weight: bolder; /* 或 bold，依需求 */
+}
+  
+/* 按鈕樣式：寬度可自訂 */
+#success-page button {
+    background-color: #6D6D6D;
+    color: #FFF;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 320px;
+    /* 確保按鈕上方有適當間距 */
+    text-align: center;
+    /* 你若想讓按鈕更寬，可加上 width: 80%; max-width: 600px; 等 */
+}
+
+#success-page button:hover {
+    background-color: #5D5D5D;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+        max-width: 100%;
+    }
+    
+    .logo {
+        width: 80px;
+        height: 80px;
+    }
+    
+    h1 {
+        font-size: 22px;
+    }
+    
+    input[type="email"], 
+    input[type="text"], 
+    input[type="date"], 
+    input[type="tel"],
+    input[type="password"],
+    .btn {
+        padding: 10px;
+        font-size: 14px;
+    }
+}

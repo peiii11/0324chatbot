@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaiSoc - 登入/註冊</title>
+    <!-- 加入 Google 身份服務腳本 -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #ffffff;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            padding: 20px;
+        }
+        .logo-container {
+            margin: 0 auto 30px;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .logo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background-color: #f0efe4;
+            border-radius: 50%;
+            padding: 0;
+        }
+        h1 {
+            color: #6d624c;
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+        h2 {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+        p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .form-container {
+            margin-top: 25px;
+            width: 100%;
+        }
+        input[type="email"], input[type="text"], input[type="date"], input[type="tel"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin: 12px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: #fff;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #666660;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .btn:hover {
+            background-color: #55554f;
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #888;
+            font-size: 14px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+        .divider::before {
+            margin-right: 15px;
+        }
+        .divider::after {
+            margin-left: 15px;
+        }
+        .hidden {
+            display: none;
+        }
+        /* 狀態訊息樣式 */
+        .status-message {
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .status-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .status-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        /* Google 按鈕樣式 */
+        .g_id_signin {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .g_id_signin > div {
+            width: 100% !important;
+        }
+        .g_id_signin iframe {
+            width: 100% !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="main-container">
+        <div class="logo-container">
+            <img src="static/logo.png" alt="TaiSoc Logo" class="logo" id="logo">
+        </div>
+        
+        <!-- 登入頁面 -->
+        <div id="login-page">
+            <h1>Welcome to TaiSoc</h1>
+            <h2 id="login-title">Create an account</h2>
+            <p id="login-subtitle">Enter your email to sign up for this app</p>
+            
+            <!-- 狀態訊息 -->
+            <div id="status-message" class="status-message"></div>
+            
+            <div class="form-container">
+                <input type="email" id="email" placeholder="Email" autocomplete="off" required>
+                <input type="password" id="password" placeholder="Password" autocomplete="off" required>
+                <button class="btn" id="email-signup-btn">Sign up with email</button>
+                <div id="login-option" class="hidden" style="margin-top: 10px;">
+                    <p style="color: #e74c3c; margin-bottom: 10px;">This email is already registered.</p>
+                    <button class="btn" id="email-login-btn" style="background-color: #4b7bec;">Log in with email</button>
+                </div>
+                <div class="divider">or continue with</div>
+                
+                <!-- Google 原生登入按鈕 -->
+                <div id="g_id_onload"
+                     data-client_id="411255601205-g39rum5fuh1edi6bpklg5r11j5qq3pnu.apps.googleusercontent.com"
+                     data-context="signin"
+                     data-callback="handleGoogleLogin"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-size="large"
+                     data-theme="outline"
+                     data-text="signin_with"
+                     data-shape="rectangular"
+                     data-width="100%"
+                     data-logo_alignment="left">
+                </div>
+                
+                <!-- 切換登入/註冊選項 -->
+                <div style="margin-top: 20px; text-align: center;">
+                    <a href="#" id="switch-to-login" style="color: #4b7bec; text-decoration: none;">Already have an account? Log in</a>
+                    <a href="#" id="switch-to-register" style="color: #4b7bec; text-decoration: none;" class="hidden">Don't have an account? Register</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 個人資料頁面 -->
+        <div id="user-info-page" class="hidden">
+            <h1>Know more about you</h1>
+            <div class="form-container">
+                <input type="text" id="name" placeholder="Name" autocomplete="off" required>
+                <input type="text" id="birthday" placeholder="Birthday" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'" autocomplete="off" required>
+                <input type="tel" id="phone" placeholder="Phone number" autocomplete="off" required>
+                <button class="btn" id="confirm-btn">Confirm</button>
+            </div>
+        </div>
+        
+        <!-- 成功頁面 -->
+        <div id="success-page" class="hidden">
+            <h1>Success!</h1>
+            <p>Your account has been successfully created.</p>
+            <button class="btn" id="continue-btn">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        // 頁面元素
+        const loginPage = document.getElementById('login-page');
+        const userInfoPage = document.getElementById('user-info-page');
+        const successPage = document.getElementById('success-page');
+        const statusMessage = document.getElementById('status-message');
+        
+        // 在頁面加載時清除表單欄位中的預設值
+        window.addEventListener('DOMContentLoaded', () => {
+            // 清除所有輸入欄位
+            document.querySelectorAll('input').forEach(input => {
+                input.value = '';
+            });
+
+            // 特別處理日期欄位，確保它顯示為文本輸入框而不是日期選擇器
+            const birthdayInput = document.getElementById('birthday');
+            if (birthdayInput) {
+                birthdayInput.type = 'text';
+                birthdayInput.value = '';
+            }
+            
+            console.log("[DEBUG] 已清除所有表單欄位的預設值");
+        });
+
+        // 顯示狀態訊息
+        function showStatus(message, isError = false) {
+            console.log(`顯示狀態訊息: ${message}, 是否錯誤: ${isError}`);
+            statusMessage.textContent = message;
+            statusMessage.className = isError 
+                ? 'status-message error' 
+                : 'status-message success';
+            
+            // 5秒後自動隱藏
+            setTimeout(() => {
+                statusMessage.className = 'status-message';
+            }, 5000);
+        }
+        
+        // 調試函數 - 檢查必要的SessionStorage數據
+        function debugSessionStorage() {
+            console.log("=== SessionStorage 調試資訊 ===");
+            console.log("userEmail:", sessionStorage.getItem('userEmail'));
+            console.log("login_method:", sessionStorage.getItem('login_method'));
+            console.log("userPassword:", sessionStorage.getItem('userPassword') ? "已設置" : "未設置");
+        }
+        
+        // Google 登入回調處理函數 - 重寫版本
+        window.handleGoogleLogin = function(response) {
+            // 立即在控制台打印消息
+            console.log("[DEBUG] Google 登入回調觸發");
+            console.log("[DEBUG] 回調數據:", response);
+            
+            // 強制顯示狀態消息以確認回調被觸發
+            statusMessage.textContent = "Google 登入處理中...";
+            statusMessage.className = "status-message success";
+            
+            try {
+                const id_token = response.credential;
+                if (!id_token) {
+                    console.error("[ERROR] 未收到有效的 Google 令牌");
+                    showStatus("Google 登入失敗：未收到令牌", true);
+                    return;
+                }
+
+                console.log("[DEBUG] 收到 Google 令牌，長度:", id_token.length);
+                
+                // 發送令牌到後端
+                fetch('/api/google-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: id_token })
+                })
+                .then(response => {
+                    console.log("[DEBUG] 後端響應狀態:", response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("[DEBUG] 後端返回數據:", data);
+                    
+                    if (data.success) {
+                        if (data.isNewUser) {
+                            // 處理新用戶
+                            console.log("[DEBUG] 是新用戶，需要填寫資料");
+                            sessionStorage.setItem('userEmail', data.email);
+                            sessionStorage.setItem('login_method', 'google');
+                            
+                            // 直接強制切換頁面
+                            loginPage.classList.add('hidden');
+                            userInfoPage.classList.remove('hidden');
+                            successPage.classList.add('hidden');
+                            
+                            // 確保表單欄位為空
+                            document.getElementById('name').value = '';
+                            document.getElementById('birthday').value = '';
+                            document.getElementById('phone').value = '';
+                            
+                            // 更新狀態
+                            showStatus("請填寫您的個人資料");
+                            
+                            console.log("[DEBUG] 已切換到個人資料頁面");
+                            // 打印SessionStorage調試信息
+                            debugSessionStorage();
+                        } else {
+                            // 處理現有用戶
+                            console.log("[DEBUG] 是現有用戶，直接登入成功");
+                            
+                            // 直接強制切換頁面
+                            loginPage.classList.add('hidden');
+                            userInfoPage.classList.add('hidden');
+                            successPage.classList.remove('hidden');
+                            
+                            // 更新狀態
+                            showStatus("登入成功！");
+                            
+                            console.log("[DEBUG] 已切換到成功頁面");
+                        }
+                    } else {
+                        console.error("[ERROR] Google 登入失敗:", data.message);
+                        showStatus("Google 登入失敗: " + data.message, true);
+                    }
+                })
+                .catch(error => {
+                    console.error("[ERROR] 請求出錯:", error);
+                    showStatus("登入過程中發生錯誤，請稍後再試", true);
+                });
+            } catch (e) {
+                console.error("[ERROR] 回調處理異常:", e);
+                showStatus("處理 Google 登入時發生錯誤", true);
+            }
+        };
+        
+        // 檢查 logo 是否加載失敗
+        document.getElementById('logo').onerror = function() {
+            console.log("Logo 加載失敗，使用備用圖片");
+            this.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAA30lEQVR4nO3bQQqDMBRF0Gy6/y3bHaRgKIrGl3sPMn5HMPnjMQAAAAAAAAAAAAAAlHiN/uA8z3EcR9UpvnYfjJzzGMc9/9x938d5nmOMd84OzesBohAQhYAoBEQhIAoBUQiIQkAUAqIQEIWAKAREISAKAVEIiEJAFAKiEBCFgCgERCEgCgFRCIhCQBQCohAQhYAoBEQhIAoBUQiIQkAUAqIQEMW9n7m/oVnjnHNsRu7wQRQCohAQhYAoBEQhIAoBUQiIQkAUAqIQEIWAKAREISAKAVEIiEJAFAKiEBAAAAAAAAAA/+UNvf8Gw6pYIJUAAAAASUVORK5CYII=';
+        };
+        
+        // 切換登入/註冊模式
+        function toggleLoginMode(isLogin) {
+            const title = document.getElementById('login-title');
+            const subtitle = document.getElementById('login-subtitle');
+            const actionBtn = document.getElementById('email-signup-btn');
+            
+            if (isLogin) {
+                title.textContent = "Log in to your account";
+                subtitle.textContent = "Enter your email and password to log in";
+                actionBtn.textContent = "Log in with email";
+                document.getElementById('login-option').classList.add('hidden');
+                document.getElementById('switch-to-register').classList.remove('hidden');
+                document.getElementById('switch-to-login').classList.add('hidden');
+            } else {
+                title.textContent = "Create an account";
+                subtitle.textContent = "Enter your email to sign up for this app";
+                actionBtn.textContent = "Sign up with email";
+                document.getElementById('login-option').classList.add('hidden');
+                document.getElementById('switch-to-register').classList.add('hidden');
+                document.getElementById('switch-to-login').classList.remove('hidden');
+            }
+        }
+        
+        // 註冊切換功能的事件處理器
+        document.getElementById('switch-to-login').addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleLoginMode(true);
+        });
+        
+        document.getElementById('switch-to-register').addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleLoginMode(false);
+        });
+        
+        // 電子郵件註冊按鈕點擊事件
+        document.getElementById('email-signup-btn').addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showStatus('請輸入有效的電子郵件地址和密碼', true);
+                return;
+            }
+            
+            // 檢查是否是登入模式
+            if (this.textContent === "Log in with email") {
+                // 執行登入
+                fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email, password: password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 登入成功，直接進入成功頁面
+                        showStatus('登入成功！');
+                        loginPage.classList.add('hidden');
+                        userInfoPage.classList.add('hidden');
+                        successPage.classList.remove('hidden');
+                    } else {
+                        showStatus(data.message || '登入失敗', true);
+                    }
+                })
+                .catch(error => {
+                    console.error('登入時出錯:', error);
+                    showStatus('登入過程中發生錯誤，請稍後再試', true);
+                });
+                return;
+            }
+            
+            // 檢查是否已註冊
+            fetch('/api/check-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.exists) {
+                        // 電子郵件已註冊，顯示登入選項
+                        document.getElementById('login-option').classList.remove('hidden');
+                    } else {
+                        // 新用戶，繼續註冊流程
+                        sessionStorage.setItem('userEmail', email);
+                        sessionStorage.setItem('userPassword', password);
+                        sessionStorage.setItem('login_method', 'email');
+                        
+                        // 切換到用戶資訊頁面
+                        loginPage.classList.add('hidden');
+                        userInfoPage.classList.remove('hidden');
+                        successPage.classList.add('hidden');
+                        
+                        // 確保表單欄位為空
+                        document.getElementById('name').value = '';
+                        document.getElementById('birthday').value = '';
+                        document.getElementById('phone').value = '';
+                        
+                        // 打印SessionStorage調試信息
+                        debugSessionStorage();
+                    }
+                } else {
+                    showStatus(data.message || '檢查電子郵件失敗', true);
+                }
+            })
+            .catch(error => {
+                console.error('檢查電子郵件時出錯:', error);
+                showStatus('檢查電子郵件時出錯，請稍後再試', true);
+            });
+        });
+        
+        // 電子郵件登入按鈕點擊事件
+        document.getElementById('email-login-btn').addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showStatus('請輸入有效的電子郵件地址和密碼', true);
+                return;
+            }
+            
+            // 登入流程
+            fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email, password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 登入成功，直接進入成功頁面
+                    showStatus('登入成功！');
+                    loginPage.classList.add('hidden');
+                    userInfoPage.classList.add('hidden');
+                    successPage.classList.remove('hidden');
+                } else {
+                    showStatus(data.message || '登入失敗', true);
+                }
+            })
+            .catch(error => {
+                console.error('登入時出錯:', error);
+                showStatus('登入過程中發生錯誤，請稍後再試', true);
+            });
+        });
+        
+        // 確認按鈕點擊事件 - 增強版
+        document.getElementById('confirm-btn').addEventListener('click', function() {
+            console.log("[DEBUG] 確認按鈕被點擊");
+            
+            const name = document.getElementById('name').value;
+            const birthday = document.getElementById('birthday').value;
+            const phone = document.getElementById('phone').value;
+            const email = sessionStorage.getItem('userEmail');
+            const password = sessionStorage.getItem('userPassword');
+            const loginMethod = sessionStorage.getItem('login_method');
+            
+            console.log("[DEBUG] 準備提交用戶資料:");
+            console.log("- 姓名:", name);
+            console.log("- 生日:", birthday);
+            console.log("- 電話:", phone);
+            console.log("- 電子郵件:", email);
+            console.log("- 登入方式:", loginMethod);
+            
+            if (!name || !birthday || !phone) {
+                console.log("[ERROR] 必填欄位缺失");
+                showStatus('請填寫所有必填欄位', true);
+                return;
+            }
+            
+            if (!email) {
+                console.log("[ERROR] 無法獲取用戶電子郵件");
+                showStatus('無法獲取用戶電子郵件，請重新開始註冊流程', true);
+                loginPage.classList.remove('hidden');
+                userInfoPage.classList.add('hidden');
+                successPage.classList.add('hidden');
+                return;
+            }
+            
+            // 準備用戶數據，確保使用正確的字段名稱
+            const userData = {
+                email: email,
+                password: password,
+                name: name,
+                birthday: birthday,
+                phone: phone,
+                registrationDate: new Date().toISOString(),
+                login_method: loginMethod
+            };
+            
+            // 根據登入方法決定 API 端點
+            const apiEndpoint = loginMethod === 'google' ? '/api/update-google-user' : '/api/register';
+            
+            console.log("[DEBUG] 提交資料到端點:", apiEndpoint);
+            console.log("[DEBUG] 提交資料內容:", JSON.stringify(userData));
+            
+            // 顯示處理中狀態
+            showStatus("資料提交中，請稍候...");
+            
+            // 發送到伺服器
+            fetch(apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => {
+                console.log("[DEBUG] 收到伺服器響應:", response.status, response.statusText);
+                return response.json().catch(err => {
+                    console.error("[ERROR] 解析JSON響應失敗:", err);
+                    throw new Error("解析服務器響應失敗");
+                });
+            })
+            .then(data => {
+                console.log("[DEBUG] 伺服器返回資料:", data);
+                
+                if (data.success) {
+                    // 清除本地儲存的臨時數據
+                    sessionStorage.removeItem('userEmail');
+                    sessionStorage.removeItem('userPassword');
+                    sessionStorage.removeItem('login_method');
+                    
+                    // 顯示成功頁面
+                    showStatus('註冊成功！');
+                    loginPage.classList.add('hidden');
+                    userInfoPage.classList.add('hidden');
+                    successPage.classList.remove('hidden');
+                    
+                    console.log("[DEBUG] 切換到成功頁面");
+                } else {
+                    console.error("[ERROR] 資料提交失敗:", data.message);
+                    showStatus('資料提交失敗: ' + data.message, true);
+                }
+            })
+            .catch(error => {
+                console.error('[ERROR] 資料提交請求錯誤:', error);
+                showStatus('資料提交過程中發生錯誤，請稍後再試: ' + error.message, true);
+            });
+        });
+        
+        // 繼續按鈕點擊事件 - 修改為跳轉到聊天頁面
+        document.getElementById('continue-btn').addEventListener('click', function() {
+            // 導航到聊天頁面
+            showStatus('註冊/登入成功！即將進入聊天頁面...', false);
+            
+            // 轉到聊天頁面
+            setTimeout(() => {
+                window.location.href = '/chat';  // 跳轉到聊天頁面
+            }, 1500);
+        });
+
+        // 檢查是否有 Google 登入重定向返回
+        window.onload = function() {
+            console.log("[DEBUG] 頁面加載完成");
+            
+            // 清除所有輸入欄位
+            document.querySelectorAll('input').forEach(input => {
+                input.value = '';
+            });
+            
+            // 如果有之前保存的郵箱，可能是從 Google 登入重定向回來的
+            const savedEmail = sessionStorage.getItem('userEmail');
+            const loginMethod = sessionStorage.getItem('login_method');
+            
+            if (savedEmail && loginMethod === 'google') {
+                console.log("[DEBUG] 檢測到保存的 Google 登入資訊，郵箱:", savedEmail);
+                
+                // 直接顯示個人資料填寫頁面
+                loginPage.classList.add('hidden');
+                userInfoPage.classList.remove('hidden');
+                successPage.classList.add('hidden');
+                
+                // 確保表單欄位為空
+                document.getElementById('name').value = '';
+                document.getElementById('birthday').value = '';
+                document.getElementById('phone').value = '';
+                
+                // 更新狀態
+                showStatus("請填寫您的個人資料");
+                
+                // 打印SessionStorage調試信息
+                debugSessionStorage();
+            }
+        };
+    </script>
+</body>
+</html>
